@@ -1,17 +1,25 @@
 import React, { Component } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import TipJar from "../abis/TipJar.json";
 import Web3 from "web3";
-import "./App.css";
-import Main from "./Main";
+
 import Spinner from "react-bootstrap/Spinner";
 import Button from "react-bootstrap/Button";
+
 import makeBlockie from "ethereum-blockies-base64";
+
+import "./App.css";
+import logo from "../logo.png";
+import JarPage from "./JarPage.js";
+import CreateJar from "./CreateJar.js";
+import Stats from "./Stats.js";
 
 class App extends Component {
   constructor(props) {
     super(props);
 
-    const path = window.location.pathname.replace("/", "");
+    const path = window.location.pathname.replaceAll("/", "");
 
     const pathHex = Web3.utils.padRight(Web3.utils.utf8ToHex(path), 34);
 
@@ -26,7 +34,6 @@ class App extends Component {
 
   async loadThings() {
     await this.initWeb3();
-    await this.getData();
 
     this.setState({ loading: false });
   }
@@ -51,6 +58,9 @@ class App extends Component {
     // Adds the user's address to the state
     const accounts = await web3.eth.getAccounts();
     this.setState({ account: accounts[0] });
+
+    const latestBlock = await web3.eth.getBlockNumber();
+    this.setState({ latestBlock });
 
     // Ensures the contract was published to the current network
     const networkId = await web3.eth.net.getId();
@@ -92,58 +102,58 @@ class App extends Component {
     }
   }
 
-  async getData() {
-    try {
-      const isJar = await this.state.tipjar.methods
-        .isJar(this.state.pathHex)
-        .call();
-      this.setState({ isJar });
-    } catch {
-      window.location.reload(false);
-    }
-
-    const jar = await this.state.tipjar.methods.jar(this.state.pathHex).call();
-    const isOwner = this.state.account === jar.owner;
-
-    this.setState({ isOwner });
-    this.setState({ balance: Web3.utils.toBN(jar.balance) });
-  }
-
   render() {
     return (
-      <div>
-        {this.state.loading ? (
-          <div className="text-center mt-5">
-            <Spinner animation="border" role="status">
-              <span className="visually-hidden"></span>
-            </Spinner>
-            <p>Waiting for Ethereum</p>
-          </div>
-        ) : (
-          <div className="text-center mt-5">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                navigator.clipboard.writeText(this.state.account);
-              }}
-            >
-              <img
-                height={30}
-                width={30}
-                alt="Unique generated icon for Ethereum account"
-                src={makeBlockie(this.state.account)}
+      <BrowserRouter>
+        <div>
+          <img className="rounded mx-auto d-block" src={logo} />
+
+          {this.state.loading ? (
+            <div className="text-center mt-5">
+              <Spinner
+                className="mx-auto d-block"
+                animation="border"
+                role="status"
               />
-              {" " +
-                this.state.account.slice(0, 8) +
-                "..." +
-                this.state.account.slice(-8) +
-                " 📋"}
-            </Button>
-            <br /> <br />
-            <Main {...this.state} />
-          </div>
-        )}
-      </div>
+              <p>Waiting for Ethereum</p>
+            </div>
+          ) : (
+            <div className="text-center mt-5">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  navigator.clipboard.writeText(this.state.account);
+                }}
+              >
+                <img
+                  height={30}
+                  width={30}
+                  alt="Unique generated icon for Ethereum account"
+                  src={makeBlockie(this.state.account)}
+                />
+                {" " +
+                  this.state.account.slice(0, 8) +
+                  "..." +
+                  this.state.account.slice(-8) +
+                  " 📋"}
+              </Button>
+              <br /> <br />
+            </div>
+          )}
+        </div>
+
+        <Routes>
+          <Route path="/" element={<CreateJar {...this.state} />} />
+          <Route
+            path="a"
+            element={this.state.loading ? null : <Stats {...this.state} />}
+          />
+          <Route
+            path=":jarId"
+            element={this.state.loading ? null : <JarPage {...this.state} />}
+          />
+        </Routes>
+      </BrowserRouter>
     );
   }
 }

@@ -1,5 +1,8 @@
 import React, { Component } from "react";
+
 import Web3 from "web3";
+
+import Spinner from "react-bootstrap/Spinner";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import Container from "react-bootstrap/Container";
@@ -7,87 +10,6 @@ import Button from "react-bootstrap/Button";
 import Toast from "react-bootstrap/Toast";
 
 import "./App.css";
-
-class CreateJar extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      validId: true,
-      loadingTransaction: false,
-    };
-  }
-
-  handleChange = async (event) => {
-    try {
-      const jarId = event.target.value;
-      const hexId = Web3.utils.padRight(Web3.utils.utf8ToHex(jarId), 34);
-      const usedId = await this.props.tipjar.methods.isJar(hexId).call();
-
-      const validId = await this.props.tipjar.methods.isValidId(hexId).call();
-
-      this.setState({ jarId });
-      this.setState({ validId: validId && !usedId });
-    } catch (err) {
-      this.setState({ validId: false });
-    }
-  };
-
-  handleSubmit = async () => {
-    const hexId = Web3.utils.padRight(
-      Web3.utils.utf8ToHex(this.state.jarId),
-      34
-    );
-
-    this.setState({ loadingTransaction: true });
-
-    try {
-      await this.props.tipjar.methods
-        .createTipJar(hexId)
-        .send({ from: this.props.account, value: 0 });
-
-      window.location.href = "/" + this.state.jarId;
-    } catch {
-      this.setState({ loadingTransaction: false });
-    }
-  };
-
-  render() {
-    return (
-      <div>
-        <Toast
-          show={this.state.loadingTransaction}
-          style={{
-            textAlign: "center",
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
-        >
-          <Toast.Body>
-            <strong>Loading Transaction</strong>
-          </Toast.Body>
-        </Toast>
-
-        <InputGroup className="mb-3">
-          <InputGroup.Text>Jar Id</InputGroup.Text>
-          <FormControl
-            type="text"
-            placeholder="Enter a Jar Id"
-            isInvalid={!this.state.validId}
-            onChange={this.handleChange}
-          />
-          <FormControl.Feedback type="invalid">
-            Please choose an id that has not been used, is between 3 and 32
-            characters and only contains letters and numbers
-          </FormControl.Feedback>
-        </InputGroup>
-        <Button variant="primary" onClick={this.handleSubmit}>
-          Create
-        </Button>
-        {}
-      </div>
-    );
-  }
-}
 
 class DonationField extends Component {
   constructor(props) {
@@ -155,6 +77,7 @@ class DonationField extends Component {
     return (
       <div>
         <Button
+          className="mx-auto d-block"
           variant="secondary"
           onClick={() => {
             navigator.clipboard.writeText(
@@ -201,6 +124,7 @@ class DonationField extends Component {
           <InputGroup.Text>MATIC</InputGroup.Text>
         </InputGroup>
         <Button
+          className="mx-auto d-block"
           variant="primary"
           onClick={this.handleSubmit}
           disabled={
@@ -301,7 +225,9 @@ class EditJar extends Component {
     return (
       <div>
         <hr />
-        <p>Current Balance: {Web3.utils.fromWei(this.props.balance)}</p>
+        <div className="mx-auto d-block">
+          <p>Current Balance: {Web3.utils.fromWei(this.props.balance)}</p>
+        </div>
 
         <Toast
           show={this.state.loadingTransaction}
@@ -370,6 +296,7 @@ class EditJar extends Component {
         </InputGroup>
 
         <Button
+          className="mx-auto d-block"
           variant="danger"
           onClick={async () => {
             this.setState({ loadingTransaction: true });
@@ -392,23 +319,52 @@ class EditJar extends Component {
   }
 }
 
-class Main extends Component {
+class JarPage extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: true,
+    };
+
+    this.getData();
+  }
+
+  async getData() {
+    try {
+      const isJar = await this.props.tipjar.methods
+        .isJar(this.props.pathHex)
+        .call();
+      this.setState({ isJar });
+      if (!isJar) {
+        window.location.href = "/";
+      }
+    } catch {
+      window.location.reload(false);
+    }
+
+    const jar = await this.props.tipjar.methods.jar(this.props.pathHex).call();
+    const isOwner = this.props.account === jar.owner;
+
+    this.setState({ isOwner });
+    this.setState({ balance: Web3.utils.toBN(jar.balance) });
+    this.setState({ loading: false });
+  }
+
   render() {
-    return this.props.isJar ? (
+    return !this.state.loading ? (
       <Container>
-        <DonationField {...this.props} />
-        {this.props.isOwner ? <EditJar {...this.props} /> : null}
+        <DonationField {...this.state} {...this.props} />
+
+        {this.state.isOwner ? (
+          <EditJar {...this.state} {...this.props} />
+        ) : null}
       </Container>
     ) : (
       <Container>
-        {this.props.path === "" ? (
-          <CreateJar {...this.props} />
-        ) : (
-          (window.location.href = "/")
-        )}
+        <Spinner className="mx-auto d-block" animation="border" role="status" />
       </Container>
     );
   }
 }
 
-export default Main;
+export default JarPage;
