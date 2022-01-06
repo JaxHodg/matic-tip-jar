@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "description": "TipJar dApp for the Polygon blockchain",
   "author": "Jax Hodgkinson",
-  "homepage": "./",
+  "homepage": ".",
+  "start_url": ".",
   "dependencies": {
     "-": "^0.0.1",
     "@emotion/react": "^11.4.0",

@@ -106,7 +106,7 @@ class App extends Component {
 
   render() {
     return (
-      <BrowserRouter>
+      <BrowserRouter base="/">
         <div>
           <img
             className="rounded mx-auto d-block"
