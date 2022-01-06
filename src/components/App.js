@@ -151,11 +151,11 @@ class App extends Component {
         <Routes>
           <Route path="/" element={<CreateJar {...this.state} />} />
           <Route
-            path="a"
+            path="/a"
             element={this.state.loading ? null : <Stats {...this.state} />}
           />
           <Route
-            path="*"
+            path="/*"
             element={this.state.loading ? null : <JarPage {...this.state} />}
           />
         </Routes>
