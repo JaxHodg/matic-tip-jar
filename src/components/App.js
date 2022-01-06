@@ -50,9 +50,11 @@ class App extends Component {
     const web3 = window.web3;
     this.setState({ web3 });
 
-    window.ethereum.on("chainChanged", (_chainId) => window.location.reload());
-    window.ethereum.on("accountsChanged", (_chainId) =>
-      window.location.reload()
+    window.ethereum.on("chainChanged", (_chainId) =>
+      window.location.reload(false)
+    );
+    window.ethereum.on("accountsChanged", (_accountId) =>
+      window.location.reload(false)
     );
 
     // Adds the user's address to the state
@@ -106,7 +108,11 @@ class App extends Component {
     return (
       <BrowserRouter>
         <div>
-          <img className="rounded mx-auto d-block" src={logo} />
+          <img
+            className="rounded mx-auto d-block"
+            alt={"Rally logo"}
+            src={logo}
+          />
 
           {this.state.loading ? (
             <div className="text-center mt-5">
@@ -115,7 +121,7 @@ class App extends Component {
                 animation="border"
                 role="status"
               />
-              <p>Waiting for Ethereum</p>
+              <p>Waiting for Wallet</p>
             </div>
           ) : (
             <div className="text-center mt-5">

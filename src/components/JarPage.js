@@ -81,7 +81,7 @@ class DonationField extends Component {
           variant="secondary"
           onClick={() => {
             navigator.clipboard.writeText(
-              "https://matic-tip-jar.pages.dev/" + this.props.path
+              "https://matic-tip-jar.pages.dev/" + this.props.path + "/"
             );
           }}
         >
@@ -225,7 +225,7 @@ class EditJar extends Component {
     return (
       <div>
         <hr />
-        <div className="mx-auto d-block">
+        <div className="text-center">
           <p>Current Balance: {Web3.utils.fromWei(this.props.balance)}</p>
         </div>
 

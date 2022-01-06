@@ -48,7 +48,7 @@ class CreateJar extends Component {
         .createTipJar(hexId)
         .send({ from: this.props.account, value: 0 });
 
-      window.location.href = "/" + this.state.jarId;
+      window.location.href = "/" + this.state.jarId + "/";
     } catch {
       this.setState({ loadingTransaction: false });
     }
