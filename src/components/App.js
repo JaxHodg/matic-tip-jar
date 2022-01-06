@@ -155,7 +155,7 @@ class App extends Component {
             element={this.state.loading ? null : <Stats {...this.state} />}
           />
           <Route
-            path=":jarId"
+            path="*"
             element={this.state.loading ? null : <JarPage {...this.state} />}
           />
         </Routes>
