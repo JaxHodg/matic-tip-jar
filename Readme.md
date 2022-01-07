@@ -4,10 +4,11 @@
 
 - Create your own tipjar [here](https://matic-tip-jar.pages.dev/)
 - Share your generated link to receive donations without posting your address
-
-<img src="exampleCreate.webp" alt="Recording of an example tip jar creation" width="200"/>
-<img src="exampleDonate.webp" alt="Recording of an example donation to a tipjar" width="200"/>
-
+<p float="left">
+  <img src="exampleCreate.webp" alt="Recording of an example tip jar creation" width="200"/>
+  <img src="exampleDonate.webp" alt="Recording of an example donation to a tipjar" width="200"/>
+</p>
+  
 ## Development Commands
 
 Deploy to Polygon MainNet:
