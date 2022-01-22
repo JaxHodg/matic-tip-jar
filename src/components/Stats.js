@@ -77,24 +77,22 @@ class StatsPage extends Component {
 
   async getData() {
     try {
-      for (let i = 23199475; i < this.props.latestBlock; i += 9000) {
+      for (let i = 23199475; i < this.props.latestBlock; i += 3000) {
         this.setState({ currentBlock: i });
 
-        const events = await this.props.tipjar.getPastEvents(
-          "allEvents",
-          { fromBlock: i - 9000, toBlock: i },
-          console.log
-        );
+        const events = await this.props.tipjar.getPastEvents("allEvents", {
+          fromBlock: i - 3000,
+          toBlock: i,
+        });
 
         this.setState({
           events: this.state.events.concat(events),
         });
       }
-      const events = await this.props.tipjar.getPastEvents(
-        "allEvents",
-        { fromBlock: this.state.currentBlock - 9000, toBlock: "latest" },
-        console.log
-      );
+      const events = await this.props.tipjar.getPastEvents("allEvents", {
+        fromBlock: this.state.currentBlock - 3000,
+        toBlock: "latest",
+      });
 
       this.setState({
         events: this.state.events.concat(events),
